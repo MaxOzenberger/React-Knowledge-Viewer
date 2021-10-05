@@ -6,7 +6,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Intro to CSVLayer | Sample | ArcGIS API for JavaScript 4.20</title>
+    <title>Knowledge JS API Viewer</title>
 
     <style>
       html,
@@ -29,90 +29,74 @@
 
     <link
       rel="stylesheet"
-      href="https://js.arcgis.com/4.20/esri/themes/light/main.css"
+      href="https://js.arcgis.com/4.21/esri/themes/light/main.css"
     />
-    <script src="https://js.arcgis.com/4.20/"></script>
+    <script src="https://js.arcgis.com/4.21/"></script>
 
     <script>
       require([
-        "esri/WebScene",
+        "esri/WebMap",
         "esri/layers/CSVLayer",
-        "esri/views/SceneView"
-      ], (WebScene, CSVLayer, SceneView) => {
-        // If CSV files are not on the same domain as your website, a CORS enabled server
-        // or a proxy is required.
-        const url =
-          "https://arcgis.github.io/arcgis-samples-javascript/sample-data/hurricanes.csv";
+        "esri/views/MapView",
+        "esri/portal/Portal",
+        "esri/config"
+      ], (WebMap, CSVLayer, MapView, Portal, esriConfig) => {
 
-        // Paste the url into a browser's address bar to download and view the attributes
-        // in the CSV file. These attributes include:
-        // * mag - magnitude
-        // * type - earthquake or other event such as nuclear test
-        // * place - location of the event
-        // * time - the time of the event
+        const url =
+          "./vehicles.csv";
+
+        esriConfig.portalUrl = "https://defense.esri.com/portal";
 
         const template = {
-          title: "Earthquake Info",
-          content: "Magnitude {mag} {type} hit {place} on {time}."
+          title: "Vehicle Info",
+          content: "Brand: {Brand}, Color: {Color}, Date Reported: {Date}"
         };
 
         const csvLayer = new CSVLayer({
           url: url,
-          copyright: "USGS Earthquakes",
+          copyright: "Vehicles of Interest",
           popupTemplate: template
         });
 
         csvLayer.renderer = {
-          type: "simple", // autocasts as new SimpleRenderer()
+          type: "simple",
           symbol: {
-            type: "point-3d", // autocasts as new PointSymbol3D()
-            // for this symbol we use 2 symbol layers, one for the outer circle
-            // and one for the inner circle
-            symbolLayers: [
-              {
-                type: "icon", // autocasts as new IconSymbol3DLayer()
-                resource: { primitive: "circle" },
-                material: { color: [255, 84, 54, 1] },
-                size: 5
-              },
-              {
-                type: "icon", // autocasts as new IconSymbol3DLayer()
-                resource: { primitive: "circle" },
-                material: { color: [255, 84, 54, 0] },
-                outline: { color: [255, 84, 54, 0.6], size: 1 },
-                size: 25
-              }
-            ]
-          }
-        };
-
-        const map = new WebScene({
-          portalItem: {
-            id: "a467ef1140de4e88acf34d38df9fb869"
-          }
-        });
-
-        map.add(csvLayer);
-
-        const view = new SceneView({
-          container: "viewDiv",
-          qualityProfile: "high",
-          map: map,
-          alphaCompositingEnabled: true,
-          highlightOptions: {
-            fillOpacity: 0,
-            color: "#ffffff"
-          },
-          constraints: {
-            altitude: {
-              min: 700000
+            type: "simple-marker",
+            size: 12,
+            color: [255, 84, 54],
+            outline: {
+              color: [ 255, 255, 255 ],
+              width: 2
             }
           }
-        });
-        view.environment.background = {
-          type: "color",
-          color: [0, 0, 0, 0]
         };
+
+        const portal = new Portal();
+
+        portal.authMode = "immediate";
+
+        portal.load().then(() => {
+          
+          const map = new WebMap({
+            portalItem: {
+              id: "2cc7d01c4a224b95b9ca030b0b6791fe"
+            }
+          });
+
+          map.add(csvLayer);
+
+          const view = new MapView({
+            container: "viewDiv",
+            qualityProfile: "high",
+            map: map,
+            highlightOptions: {
+              fillOpacity: 0,
+              color: "#ffffff"
+            }
+          });
+
+        });
+
       });
     </script>
   </head>
