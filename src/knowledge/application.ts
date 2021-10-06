@@ -74,7 +74,7 @@ const mobile = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod/i);
             iconClass: "esri-icon-download",
             title: "Download vehicles.csv",
             action: () => {
-              window.open("src/knowledge/vehicles.csv")
+              window.open("data/vehicles.csv")
             }
           }),
       ]

@@ -75,7 +75,7 @@ define(["require", "exports", "esri/WebMap", "esri/layers/CSVLayer", "esri/Graph
                                 iconClass: "esri-icon-download",
                                 title: "Download vehicles.csv",
                                 action: function () {
-                                    window.open("src/knowledge/vehicles.csv");
+                                    window.open("data/vehicles.csv");
                                 }
                             }),
                     ]
