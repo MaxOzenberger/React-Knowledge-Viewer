@@ -1,10 +1,8 @@
-
 import Map = require("esri/WebMap");
 
 import CSVLayer = require("esri/layers/CSVLayer");
 
 import Graphic = require("esri/Graphic");
-import Viewpoint = require("esri/Viewpoint");
 import Circle = require("esri/geometry/Circle");
 
 import SimpleRenderer = require("esri/renderers/SimpleRenderer");
@@ -16,10 +14,8 @@ import esriConfig = require("esri/config");
 import Portal = require("esri/portal/Portal");
 
 import Home = require("esri/widgets/Home");
-import Expand = require("esri/widgets/Expand");
 import Zoom = require("esri/widgets/Zoom");
 import Legend = require("esri/widgets/Legend");
-import FullScreen = require("esri/widgets/Fullscreen");
 import { throttle } from "@dojo/core/util";
 
 import Header from "../widgets/Header";
@@ -95,15 +91,18 @@ const mobile = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod/i);
       drop: (dataTransfer: DataTransfer) => {
         const files = dataTransfer.files;
         const file = files[0];
-        var template = {
+/*         const template = {
           title: "Vehicle Info",
           content: "Brand: {Brand}, Color: {Color}, Date Reported: {Date}"
-        };
+        }; */
+        console.log(URL.createObjectURL(file));
         layer = new CSVLayer({
+          title: file.name,
           url: URL.createObjectURL(file),
-          popupTemplate: template,
+          //popupTemplate: template,
           // "PROJCS[\"South Pole Stereographic_1\",GEOGCS[\"GCS WGS 1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Stereographic\"],PARAMETER[\"False_Easting\",0.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",-145.0],PARAMETER[\"Scale_Factor\",1.0],PARAMETER[\"Latitude_Of_Origin\",-90.0],UNIT[\"Meter\",1.0]]"
           spatialReference: view.spatialReference,
+          outFields: ["*"],
           renderer: new SimpleRenderer({
             symbol: new SimpleMarkerSymbol({
               size: 12,
@@ -115,7 +114,7 @@ const mobile = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod/i);
             })
           })
         });
-  
+
         return layer.load();
       }
     });
@@ -129,6 +128,28 @@ const mobile = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod/i);
     target.on("drop", (event) => {
       map.removeAll();
       map.add(event.item);
+      view.goTo(event.item.fullExtent);
+      
+      var template: any = {
+        title: event.item.title,
+        content: [
+          {
+            type: "fields",
+            fieldInfos: [],
+            visible: true
+          }
+        ]
+      };
+
+      for(var i = 0; layer.fields.length > i; i++){
+        template.content[0].fieldInfos.push({
+          fieldName: layer.fields[i].name,
+          label: layer.fields[i].name
+        });
+      }
+
+      layer.popupTemplate = template;
+
       (header.actionContent[1] as ToggleIconButton).enabled = true;
     });
 
